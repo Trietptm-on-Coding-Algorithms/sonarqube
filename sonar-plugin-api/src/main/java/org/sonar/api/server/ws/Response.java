@@ -41,12 +41,17 @@ public interface Response {
      */
     Stream setStatus(int httpStatus);
 
+    /**
+     * Response stream. Beware that proper error management is not possible.
+     */
     OutputStream output();
   }
 
   /**
-   * Non streamable {@link JsonWriter}. Response is written when resource is closed.
+   * Streamable {@link JsonWriter}. Beware that proper error management is not possible.
+   * @deprecated since 7.0. Please use {@link Stream#output()} explicitly.
    */
+  @Deprecated
   JsonWriter newJsonWriter();
 
   XmlWriter newXmlWriter();

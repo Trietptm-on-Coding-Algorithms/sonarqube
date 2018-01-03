@@ -85,7 +85,7 @@ public class ServletResponse implements Response {
   @Override
   public JsonWriter newJsonWriter() {
     stream.setMediaType(JSON);
-    return JsonWriter.of(new CacheWriter(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8)));
+    return JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
   }
 
   @Override
