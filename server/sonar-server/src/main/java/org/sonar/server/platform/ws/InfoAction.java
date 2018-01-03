@@ -23,8 +23,9 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.JsonBuilder;
+import org.sonar.server.ws.WsUtils;
 
 /**
  * Implementation of the {@code info} action for the System WebService.
@@ -56,11 +57,12 @@ public class InfoAction implements SystemWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsSystemAdministrator();
-    JsonWriter json = response.newJsonWriter();
-    json.beginObject();
-    systemInfoWriter.write(json);
-    json.endObject();
-    json.close();
+    try (JsonBuilder json = new JsonBuilder()) {
+      json.beginObject();
+      systemInfoWriter.write(json);
+      json.endObject();
+      WsUtils.writeJson(json, request, response);
+    }
   }
 
 }
