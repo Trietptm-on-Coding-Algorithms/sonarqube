@@ -41,6 +41,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.JsonBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
@@ -57,9 +58,10 @@ import static org.sonar.api.measures.CoreMetrics.VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.ws.WsUtils.writeJson;
 
 public class AppAction implements ComponentsWsAction {
 
@@ -118,14 +120,16 @@ public class AppAction implements ComponentsWsAction {
       ComponentDto component = loadComponent(session, request);
       userSession.checkComponentPermission(UserRole.USER, component);
 
-      JsonWriter json = response.newJsonWriter();
-      json.beginObject();
-      Map<String, LiveMeasureDto> measuresByMetricKey = loadMeasuresGroupedByMetricKey(component, session);
-      appendComponent(json, component, userSession, session);
-      appendPermissions(json, userSession);
-      appendMeasures(json, measuresByMetricKey);
-      json.endObject();
-      json.close();
+      try(JsonBuilder json = new JsonBuilder()) {
+        json.beginObject();
+        Map<String, LiveMeasureDto> measuresByMetricKey = loadMeasuresGroupedByMetricKey(component, session);
+        appendComponent(json, component, userSession, session);
+        appendPermissions(json, userSession);
+        appendMeasures(json, measuresByMetricKey);
+        json.endObject();
+
+        writeJson(json, request, response);
+      }
     }
   }
 
